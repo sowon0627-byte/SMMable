@@ -287,15 +287,22 @@ void actionNode(int player)
                  printf("Here is Lacture.\n"); 
                  if (findGrade(player, smmObj_getObjectName(ptr)) == NULL )
                  {
-                      smm_players[player].credit += credit;
-                      smm_players[player].energy -= energy;
-                      
-                      char* LectureName = smmObj_getObjectName(ptr);
-                      
-                      smmGrade_e myGrade = takeLecture(player, LectureName, credit);
-                      
-                      gradePtr = smmObj_genObject(smmObj_getObjectName(ptr), SMMNODE_OBJTYPE_GRADE, type, credit, energy, (int)myGrade);
-                      smmdb_addTail(LISTNO_OFFSET_GRADE + player, gradePtr);
+                      if(smm_players[player].energy >= energy)
+                      {
+                          smm_players[player].credit += credit;
+                          smm_players[player].energy -= energy;
+                          
+                          char* LectureName = smmObj_getObjectName(ptr);
+                          
+                          smmGrade_e myGrade = takeLecture(player, LectureName, credit);
+                          
+                          gradePtr = smmObj_genObject(smmObj_getObjectName(ptr), SMMNODE_OBJTYPE_GRADE, type, credit, energy, (int)myGrade);
+                          smmdb_addTail(LISTNO_OFFSET_GRADE + player, gradePtr);
+                      }
+                      else
+                      {
+                          printf("You can't take this lecture!\n");
+                      }
                       
                       
                  }
@@ -509,7 +516,10 @@ int main(int argc, const char * argv[]) {
         goForward(turn, die_result);
         
 		//4-4. take action at the destination node of the board
-        actionNode(turn);
+		if (smm_players[turn].flag_graduated == 0)
+		{
+              actionNode(turn);
+        }
         
         //4-5. next turn
         turn = (turn +1)%smm_player_nr;
